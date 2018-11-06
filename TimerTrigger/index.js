@@ -1,9 +1,79 @@
-module.exports = async function (context, myTimer) {
-    var timeStamp = new Date().toISOString();
-    
-    if(myTimer.isPastDue)
-    {
-        context.log('JavaScript is running late!');
+const fetch = require("node-fetch");
+const moment = require("moment");
+require('dotenv').config();
+
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./accountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+let db = admin.firestore();
+
+db.settings({ timestampsInSnapshots: true });
+
+const body = state =>
+  JSON.stringify({
+    query: `
+        query {
+            repository(owner: "Microsoft", name:"azuredatastudio") {
+                issues(states:${state}) {
+                  totalCount
+                }
+              }
+        }`
+  });
+
+function getIssues(body) {
+  const url = "https://api.github.com/graphql";
+  const options = {
+    method: "POST",
+    body: body,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `${process.env.GITHUB_TOKEN}`
     }
-    context.log('JavaScript timer trigger function ran!', timeStamp);   
+  };
+  
+  return fetch(url, options)
+    .then(resp => resp.json())
+    .then(data => {
+      return data.data.repository.issues.totalCount;
+    });
+}
+
+function getOpenIssues() {
+  return getIssues(body("OPEN"));
+}
+
+function getClosedIssues() {
+  return getIssues(body("CLOSED"));
+}
+
+module.exports = async function (context, myTimer) {
+    // var timeStamp = new Date().toISOString();
+    
+    // if(myTimer.isPastDue)
+    // {
+    //     context.log('JavaScript is running late!');
+    // }
+    // context.log('JavaScript timer trigger function ran!', timeStamp);   
+
+    var openIssues = await getOpenIssues();
+    var closedIssues = await getClosedIssues();
+  
+    let now = moment().unix();
+  
+    let docRef = db.collection("entries").doc(now.toString());
+  
+    await docRef.set({
+      timestamp: now,
+      openIssues: openIssues,
+      closedIssues: closedIssues
+    });
+  
+    return "DONE";
 };

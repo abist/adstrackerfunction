@@ -23,3 +23,4 @@ appsettings.json
 local.settings.json
 .env
 node_modules
+accountKey.json
