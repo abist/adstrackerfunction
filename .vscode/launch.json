@@ -2,6 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program (main)",
+      "program": "${workspaceFolder}/ads-issue-tracker/main.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program (grabData)",
+      "program": "${workspaceFolder}/ads-issue-tracker/grabData.js"
+    },
+    {
       "name": "Attach to JavaScript Functions",
       "type": "node",
       "request": "attach",

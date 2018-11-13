@@ -2,12 +2,6 @@
   "name": "ads-issue-tracker",
   "version": "1.0.0",
   "description": "Azure function to see open and closed issue count on microsoft/azuredatastudio github repo",
-  "main": "index.js",
-  "scripts": {
-    "postinstall": "npm rebuild grpc --target=8.10.0 --target_arch=x64 --target_platform=linux --target_libc=glibc",
-    "clean": "rm vscodeFunc.zip",
-    "deploy": "zip -r vscodeFunc.zip * && aws lambda update-function-code --function-name \"vscode-issue-tracker\" --zip-file fileb://vscodeFunc.zip"
-  },
   "keywords": [],
   "author": "Aditya Bist",
   "license": "MIT",
